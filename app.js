@@ -56,35 +56,41 @@ if(cluster.isMaster){
 	var languages = {
 		'ruby': {
 			filename: 'Main.rb',
-			execCmd: 'ruby Main.rb'
+			runningCmd: 'ruby Main.rb'
 		},
 		'python': {
 			filename: 'Main.py',
-			execCmd: 'python Main.py'
+			runningCmd: 'python Main.py'
 		},
 		'c': {
 			filename: 'Main.c',
-			execCmd: 'gcc -Wall -o Main Main.c && ./Main'
+			cacheDir: '/tmp/online-compiler/cpp/',
+			compileCmd: 'gcc -Wall -o Main Main.c',
+			runningCmd: './Main'
 		},
 		'cpp': {
 			filename: 'Main.cpp',
-			execCmd: 'g++ -Wall -o Main Main.cpp && ./Main'
+			cacheDir: '/tmp/online-compiler/cpp/',
+			compileCmd: 'g++ -Wall -o Main Main.cpp',
+			runningCmd: './Main'
 		},
 		'cpp11': {
 			filename: 'Main.cpp',
-			execCmd: 'g++ -std=c++0x -o Main Main.cpp && ./Main'
+			cacheDir: '/tmp/online-compiler/cpp11/',
+			compileCmd: 'g++ -std=c++0x -o Main Main.cpp',
+			runningCmd: './Main'
 		},
 		'php': {
 			filename: 'Main.php',
-			execCmd: 'php Main.php'
+			runningCmd: 'php Main.php'
 		},
 		'js': {
 			filename: 'Main.js',
-			execCmd: 'node Main.js'
+			runningCmd: 'node Main.js'
 		},
 		'bash': {
 			filename: 'Main.sh',
-			execCmd: 'bash Main.sh'
+			runningCmd: 'bash Main.sh'
 		}
 	}
 
@@ -95,10 +101,9 @@ if(cluster.isMaster){
 		res.setHeader("Access-Control-Allow-Origin", "*");
 		var language = req.body.language===undefined?"":req.body.language;
 		var source_code = req.body.source_code===undefined?"":req.body.source_code;
+		console.log(source_code);
 		var input = req.body.input===undefined?"":req.body.input;
-
-		var runningHash = md5hex(new Date().getTime().toString());
-		var workspace = '/tmp/workspace/' + runningHash + "/";
+		var precompile = req.body.precompile===undefined?false:req.body.precompile;
 
 		var filename, execCmd;
 
@@ -125,10 +130,13 @@ if(cluster.isMaster){
 			*/	
 
 		// Start compile
-		
+		dockerCmd = 'docker exec -i ' + containerId + ' ' + languages[language].compileCmd
+		child_process.execSync(dockerCmd);
+
+		// Start running
 		dockerCmd = 'docker exec -i ' + containerId + ' timeout -t 3 ' +
 			'su nobody -s /bin/ash -c "' +
-			languages[language].execCmd +
+			languages[language].runningCmd +
 			'"'; 
 		//dockerCmd = 'docker exec -i ' + containerId + ' ls';
 		console.log("Running: " + dockerCmd);
