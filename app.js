@@ -7,20 +7,52 @@ var fs = require('fs');
 var os = require('os');
 var crypto = require('crypto');
 
-if(cluster.isMaster){
-	var numCPUs = os.cpus().length;
+var available_containers = [];
 
+var count_container = 3;
+
+var md5hex = function(src){
+	var md5hash = crypto.createHash('md5');
+	md5hash.update(src, 'binary');
+	return md5hash.digest('hex');
+}
+
+function create_container(){
+	var runningHash = md5hex(new Date().getTime().toString());
+	var workspace = '/tmp/workspace/' + runningHash + "/";
+	var dockerCmd = 
+		'docker run -i -d ' + 
+		'--net none ' + 
+		'--memory 512m --memory-swap 512m ' +
+		'--ulimit nproc=10:10 ' +
+		'--ulimit fsize=1000000 ' +
+		'-w /workspace/' + runningHash + ' ' +  
+		'ugwis/online-compiler ' +
+		'/bin/ash';
+	console.log("Running: " + dockerCmd);
+	var output = child_process.execSync(dockerCmd);
+	console.log(output.toString());
+	var containerId = output.toString().substr(0,12);
+	console.log(containerId);
+	console.log("ok");
+	available_containers.push({
+		'runningHash': runningHash,
+		'containerId': containerId,
+		'workspace': workspace
+	});
+}
+
+
+var numCPUs = os.cpus().length;
+if(cluster.isMaster){
 	for(var i=0; i < numCPUs; i++){
 		cluster.fork();
 	}
-
 } else {
-	var md5hex = function(src){
-		var md5hash = crypto.createHash('md5');
-		md5hash.update(src, 'binary');
-		return md5hash.digest('hex');
+	for(var i=0;i < count_container;i++) {
+		create_container();
 	}
-
+	console.log(available_containers);
 	var languages = {
 		'ruby': {
 			filename: 'Main.rb',
@@ -69,26 +101,15 @@ if(cluster.isMaster){
 		var workspace = '/tmp/workspace/' + runningHash + "/";
 
 		var filename, execCmd;
-		// Ceate a container
-		var dockerCmd = 
-			'docker create -i ' + 
-			'--net none ' + 
-			'--memory 512m --memory-swap 512m ' +
-			'--ulimit nproc=10:10 ' +
-			'--ulimit fsize=1000000 ' +
-			'-w /workspace/' + runningHash + ' ' +  
-			'ugwis/online-compiler ' +
-			/*'/usr/bin/time -f "%e" -o /time-' + runningHash + '.txt ' +*/ 
-			'timeout -t 3 ' +
-			'su nobody -s /bin/ash -c "' +
-			languages[language].execCmd + 
-			'"';
-		console.log("Running: " + dockerCmd);
-		var output = child_process.execSync(dockerCmd);
-		console.log(output.toString());
-		var containerId = output.toString().substr(0,12);
-		console.log("ok");
-		
+
+		// Chose container 
+		while(available_containers.length == 0) sleep(0.001);
+		var container = available_containers.pop();
+		var containerId = container.containerId;
+		var runningHash = container.runningHash;
+		var workspace = container.workspace;
+		var compileHash = md5hex(new Date().getTime().toString());
+	
 		// Copy the source code to the container
 		child_process.execSync('mkdir -p ' + workspace + ' && chmod 777 ' + workspace + '/');
 		fs.writeFileSync(workspace + languages[language].filename, source_code);
@@ -96,9 +117,20 @@ if(cluster.isMaster){
 		console.log("Running: " + dockerCmd);
 		child_process.execSync(dockerCmd);
 		console.log("ok");
+
+		/*
+		dockerCmd = "docker exec -i " + containerId + " ls"; 
+		console.log(dockerCmd);
+		console.log(child_process.execSync(dockerCmd).toString());
+			*/	
+
+		// Start compile
 		
-		// Start the container
-		dockerCmd = "docker start -i " + containerId;
+		dockerCmd = 'docker exec -i ' + containerId + ' timeout -t 3 ' +
+			'su nobody -s /bin/ash -c "' +
+			languages[language].execCmd +
+			'"'; 
+		//dockerCmd = 'docker exec -i ' + containerId + ' ls';
 		console.log("Running: " + dockerCmd);
 		var child = child_process.exec(dockerCmd, {}, function(error, stdout, stderr){
 			if(error) console.log(error);
@@ -125,6 +157,7 @@ if(cluster.isMaster){
 			console.log("Result: ", error, stdout, stderr);
 
 			child_process.exec('rm -rf ' + workspace,{},function(){});
+			create_container();
 
 		});
 		child.stdin.write(input)
