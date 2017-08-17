@@ -6,6 +6,7 @@ var child_process = require('child_process');
 var fs = require('fs');
 var os = require('os');
 var crypto = require('crypto');
+var fs = require('fs');
 
 var available_containers = [];
 
@@ -15,6 +16,15 @@ var md5hex = function(src){
 	var md5hash = crypto.createHash('md5');
 	md5hash.update(src, 'binary');
 	return md5hash.digest('hex');
+}
+
+function is_exist(path){
+	try {
+		fs.statSync(path);
+		return true;
+	} catch(e) {
+		return false;
+	}
 }
 
 function create_container(){
@@ -108,12 +118,19 @@ if(cluster.isMaster){
 		var filename, execCmd;
 
 		// Chose container 
-		while(available_containers.length == 0) sleep(0.001);
+		if(available_containers.length == 0){
+			 res.send({
+				 stdout: "",
+				 stderr: "Not available docker container",
+				 exit_code: 500,
+				 /*time: time*/
+			 });
+		}
 		var container = available_containers.pop();
 		var containerId = container.containerId;
 		var runningHash = container.runningHash;
 		var workspace = container.workspace;
-		var compileHash = md5hex(new Date().getTime().toString());
+		var compileHash = md5hex(source_code);
 	
 		// Copy the source code to the container
 		child_process.execSync('mkdir -p ' + workspace + ' && chmod 777 ' + workspace + '/');
@@ -130,8 +147,24 @@ if(cluster.isMaster){
 			*/	
 
 		// Start compile
-		dockerCmd = 'docker exec -i ' + containerId + ' ' + languages[language].compileCmd
-		child_process.execSync(dockerCmd);
+		if('compileCmd' in languages[language]){
+			var cachePath = languages[language].cacheDir + compileHash
+			if(is_exist(cachePath)){
+				dockerCmd = 'docker cp ' + cachePath + " " + containerId + ':/workspace/' + runningHash + '/Main';
+				console.log(dockerCmd);
+				child_process.execSync(dockerCmd);
+			} else {
+				// Build source_code
+				dockerCmd = 'docker exec -i ' + containerId + ' ' + languages[language].compileCmd
+				console.log(dockerCmd);
+				child_process.execSync(dockerCmd);
+
+				// Cache binary file
+				dockerCmd = 'docker cp ' + containerId + ':/workspace/' + runningHash + '/Main ' + cachePath;
+				console.log(dockerCmd);
+				child_process.execSync(dockerCmd);
+			}
+		}
 
 		// Start running
 		dockerCmd = 'docker exec -i ' + containerId + ' timeout -t 3 ' +
