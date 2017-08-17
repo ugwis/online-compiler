@@ -64,7 +64,7 @@ if(cluster.isMaster){
 		},
 		'c': {
 			filename: 'Main.c',
-			cacheDir: '/tmp/online-compiler/cpp/',
+			cacheDir: '/tmp/online-compiler/c/',
 			compileCmd: 'gcc -Wall -o Main Main.c',
 			runningCmd: './Main'
 		},
