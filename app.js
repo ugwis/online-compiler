@@ -132,6 +132,7 @@ if(cluster.isMaster){
 			 });
 		}
 		var container = available_containers.pop();
+		console.log(container)
 		var containerId = container.containerId;
 		var runningHash = container.runningHash;
 		var workspace = container.workspace;
@@ -145,16 +146,10 @@ if(cluster.isMaster){
 		child_process.execSync(dockerCmd);
 		console.log("ok");
 
-		/*
-		dockerCmd = "docker exec -i " + containerId + " ls"; 
-		console.log(dockerCmd);
-		console.log(child_process.execSync(dockerCmd).toString());
-			*/	
-
 		// Start compile
 		if('compileCmd' in languages[language]){
 			var cachePath = languages[language].cacheDir + compileHash
-			if(is_exist(cachePath)){
+			if(is_exist(cachePath) && !precompile){
 				dockerCmd = 'docker cp ' + cachePath + " " + containerId + ':/workspace/' + runningHash + '/Main';
 				console.log(dockerCmd);
 				child_process.execSync(dockerCmd);
