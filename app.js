@@ -110,11 +110,16 @@ if(cluster.isMaster){
 	app.post('/api/run', function(req, res){
 		res.setHeader("Access-Control-Allow-Origin", "*");
 		var language = req.body.language===undefined?"":req.body.language;
+		console.log("language: " + language)
 		var source_code = req.body.source_code===undefined?"":req.body.source_code;
-		console.log(source_code);
+		console.log("source_code: " + source_code)
 		var input = req.body.input===undefined?"":req.body.input;
+		console.log("input: " + input)
 		var precompile = req.body.precompile===undefined?false:req.body.precompile;
-
+		console.log("precompile: " + precompile)
+		var nocache = req.body.nocache===undefined?false:req.body.nocache;
+		console.log("nocache: " + nocache)
+ 
 		var filename, execCmd;
 
 		// Chose container 
