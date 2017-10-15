@@ -1,0 +1,9 @@
+version: '3'
+services:
+  compiler:
+    build: master
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./tmp:/tmp/online-compiler
+    ports:
+        - 3000:3000
