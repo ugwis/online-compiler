@@ -144,6 +144,7 @@ if(cluster.isMaster){
 				 exit_code: 500,
 				 /*time: time*/
 			 });
+			return;
 		}
 		var container = available_containers.pop();
 		console.log(container)
