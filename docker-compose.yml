@@ -3,6 +3,8 @@ services:
   docker:
     image: docker:dind
     privileged: true
+    volumes:
+      - data:/tmp/compiler
   api:
     build: master
     ports:
@@ -11,3 +13,6 @@ services:
       - docker
     environment:
       - DOCKER_HOST=tcp://docker:2375
+
+volumes:
+  data:
