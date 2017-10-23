@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+
 	"github.com/docker/engine-api/client"
 	"github.com/docker/engine-api/types"
 	"github.com/gin-gonic/gin"
@@ -15,12 +16,12 @@ func main() {
 	}
 	options := types.ContainerListOptions{All: true}
 	r := gin.Default()
-	r.GET("/",func(c *gin.Context) {
+	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
-	r.POST("/build",func(c *gin.Context) {
+	r.POST("/build", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
