@@ -1,6 +1,6 @@
 version: '3'
 services:
-  dind:
+  docker:
     image: docker:dind
     privileged: true
   compiler:
@@ -10,4 +10,4 @@ services:
     links:
       - dind
     environment:
-      - DOCKER_HOST=tcp://dind:2375
+      - DOCKER_HOST=tcp://docker:2375
