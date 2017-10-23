@@ -1,8 +1,8 @@
-FROM docker:dind
-WORKDIR /
-ADD . .
-RUN apk update && \ 
-	apk add nodejs nodejs-npm && \
-	npm update && \
-	npm install express body-parser
-CMD ["node", "app.js"]
+FROM golang:1.8
+WORKDIR /usr/local/go/src/github.com/ugwis/online-compiler
+ADD . ./
+RUN go get ./... && go build --ldflags '-s -w -linkmode external -extldflags -static' -o /main
+
+FROM scratch
+COPY --from=0 /main /main
+CMD ["/main"]
