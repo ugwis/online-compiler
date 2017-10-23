@@ -1,9 +1,13 @@
 version: '3'
 services:
+  dind:
+    image: docker:dind
+    privileged: true
   compiler:
     build: master
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./tmp:/tmp/online-compiler
     ports:
-        - 3000:3000
+      - 3000:8080
+    links:
+      - dind
+    environment:
+      - DOCKER_HOST=tcp://dind:2375
