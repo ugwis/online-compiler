@@ -3,11 +3,11 @@ services:
   docker:
     image: docker:dind
     privileged: true
-  compiler:
+  api:
     build: master
     ports:
       - 3000:8080
     links:
-      - dind
+      - docker
     environment:
       - DOCKER_HOST=tcp://docker:2375
