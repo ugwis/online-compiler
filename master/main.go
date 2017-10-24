@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/docker/engine-api/client"
 	"github.com/docker/engine-api/types"
@@ -33,9 +34,14 @@ func main() {
 		})
 	})
 	r.POST("/build", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
+		var query Build
+		if err := c.BindJSON(&query); err == nil {
+			c.JSON(200, gin.H{
+				"message": "pong",
+			})
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
 	})
 	r.GET("/node", func(c *gin.Context) {
 		containers, err := cli.ContainerList(context.Background(), options)
