@@ -9,6 +9,17 @@ import (
 	"golang.org/x/net/context"
 )
 
+type Build struct {
+	Code     string `form:"code"`
+	Language string `form:"language"`
+}
+
+type Run struct {
+	Code     string `form:"code"`
+	Language string `form:"language"`
+	Stdin    string `form:"stdin"`
+}
+
 func main() {
 	cli, err := client.NewEnvClient()
 	if err != nil {
