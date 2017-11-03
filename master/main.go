@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/context"
@@ -51,6 +52,11 @@ func main() {
 				Cmd:   []string{"echo", "hello world"},
 			}, nil, nil, "")
 			if err != nil {
+				log.Fatal(err)
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			}
+			// Start container
+			if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 				log.Fatal(err)
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			}
