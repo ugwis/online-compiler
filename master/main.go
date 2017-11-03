@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/docker/engine-api/client"
-	"github.com/docker/engine-api/types"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/context"
 )
