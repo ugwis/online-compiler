@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log"
 	"net/http"
 
@@ -30,10 +31,11 @@ func main() {
 	}
 	options := types.ContainerListOptions{All: true}
 
-	_, err = cli.ImagePull(ctx, "ugwis/online-compiler", types.ImagePullOptions{})
+	res, err = cli.ImagePull(ctx, "ugwis/online-compiler", types.ImagePullOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
+	io.Copy(os.Stdout, res)
 
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
