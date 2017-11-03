@@ -44,6 +44,14 @@ func main() {
 	r.POST("/build", func(c *gin.Context) {
 		var query Build
 		if err := c.BindJSON(&query); err == nil {
+			esp, err := cli.ContainerCreate(ctx, &container.Config{
+				Image: "ugwis/online-compiler",
+				Cmd:   []string{"echo", "hello world"},
+			}, nil, nil, "")
+			if err != nil {
+				log.Fatal(err)
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			}
 			c.JSON(200, gin.H{
 				"message": "pong",
 			})
