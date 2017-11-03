@@ -22,11 +22,19 @@ type Run struct {
 }
 
 func main() {
+	ctx := context.Background()
+
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		log.Fatal("Docker client is not connected.")
 	}
 	options := types.ContainerListOptions{All: true}
+
+	_, err = cli.ImagePull(ctx, "ugwis/online-compiler", types.ImagePullOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -44,7 +52,7 @@ func main() {
 		}
 	})
 	r.GET("/node", func(c *gin.Context) {
-		containers, err := cli.ContainerList(context.Background(), options)
+		containers, err := cli.ContainerList(ctx, options)
 		if err != nil {
 			log.Print(err)
 			c.JSON(500, gin.H{
