@@ -55,6 +55,7 @@ func main() {
 		/*runCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()*/
 		if err := c.BindJSON(&query); err == nil {
+
 			// Make hash
 			fmt.Println("Make hash")
 			h := md5.New()
@@ -62,25 +63,28 @@ func main() {
 			io.WriteString(h, query.Code)
 			runningHash := hex.EncodeToString(h.Sum(nil))
 			fmt.Println("runningHash: " + runningHash)
+
 			// Save code
 			fmt.Println("Save code")
 			if err := os.MkdirAll("/tmp/compiler/"+runningHash, 0755); err != nil {
-				log.Fatal(err)
 				fmt.Println(err.Error())
-				log.Fatal("Cannot create workspace directory")
+				return
 			}
 			// TODO fix file ext
 			fp, err := os.OpenFile("/tmp/compiler/"+runningHash+"/main.sh", os.O_WRONLY|os.O_CREATE, 0644)
 			if err != nil {
-				log.Fatal("Don't open file")
+				fmt.Println(err.Error())
+				return
 			}
 			defer fp.Close()
 			writer := bufio.NewWriter(fp)
 			_, err = writer.WriteString(query.Code)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Println(err.Error())
+				return
 			}
 			writer.Flush()
+
 			// Create container
 			fmt.Println("Create container")
 			resp, err := cli.ContainerCreate(ctx, &container.Config{
@@ -95,27 +99,32 @@ func main() {
 						Target: "/workspace",
 					},
 				},
-				/*AutoRemove: true,*/
+				AutoRemove: true,
 			}, nil, "")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				fmt.Println(err.Error())
 				return
 			}
+
 			// Start container
 			err = cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
 			if err != nil {
-				log.Fatal(err)
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				fmt.Println(err.Error())
+				return
 			}
+
+			// Flow log of Stdout
 			out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true, Follow: true})
 			if err != nil {
-				log.Fatal(err)
+				fmt.Println(err.Error())
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
 			}
 			rd := bufio.NewReader(out)
 			c.Stream(func(w io.Writer) bool {
 				line, _, err := rd.ReadLine()
-				fmt.Println(string(line))
 				w.Write(line)
 				w.Write([]byte("\n"))
 				if err == io.EOF {
