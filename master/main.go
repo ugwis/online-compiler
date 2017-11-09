@@ -51,6 +51,7 @@ func main() {
 		})
 	})
 	r.POST("/build", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
 		var query Build
 		/*runCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()*/
