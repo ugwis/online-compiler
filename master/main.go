@@ -97,8 +97,7 @@ func main() {
 				fmt.Println(err.Error())
 				return
 			}
-			// TODO fix file ext
-			fp, err := os.OpenFile("/tmp/compiler/"+runningHash+"/main.sh", os.O_WRONLY|os.O_CREATE, 0644)
+			fp, err := os.OpenFile("/tmp/compiler/"+runningHash+"/"+lang.Language[query.Language].CodeFile, os.O_WRONLY|os.O_CREATE, 0644)
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -111,6 +110,84 @@ func main() {
 				return
 			}
 			writer.Flush()
+
+			if len(lang.Language[query.Language].BuildCmd) == 0 {
+				c.String(http.StatusCreated, "This language hasn't build command and saved")
+				return
+			}
+
+			// Create container
+			// TODO: Limit container spec
+			fmt.Println("Create container")
+			resp, err := cli.ContainerCreate(ctx, &container.Config{
+				Image:      lang.Language[query.Language].DockerImage,
+				WorkingDir: "/workspace",
+				Cmd:        lang.Language[query.Language].BuildCmd,
+			}, &container.HostConfig{
+				Mounts: []mount.Mount{
+					mount.Mount{
+						Type:   mount.TypeBind,
+						Source: "/tmp/compiler/" + runningHash,
+						Target: "/workspace",
+					},
+				},
+				AutoRemove: true,
+			}, nil, "")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				fmt.Println(err.Error())
+				return
+			}
+
+			// Start container
+			err = cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				fmt.Println(err.Error())
+				return
+			}
+
+			// Flow log of Stdout
+			out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true, Follow: true})
+			if err != nil {
+				fmt.Println(err.Error())
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			rd := bufio.NewReader(out)
+			c.Stream(func(w io.Writer) bool {
+				line, _, err := rd.ReadLine()
+				w.Write(line)
+				w.Write([]byte("\n"))
+				if err == io.EOF {
+					return false
+				} else if err != nil {
+					fmt.Println(err.Error())
+					return false
+				}
+				return true
+			})
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
+	})
+	r.POST("/run", func(c *gin.Context) {
+		var query Run
+		if err := c.BindJSON(&query); err == nil {
+			// Make hash
+			fmt.Println("Make hash")
+			h := md5.New()
+			io.WriteString(h, query.Language)
+			io.WriteString(h, query.Code)
+			runningHash := hex.EncodeToString(h.Sum(nil))
+			fmt.Println("runningHash: " + runningHash)
+
+			// Check exist of source code and builded image
+			_, err = os.Stat("/tmp/compiler/" + runningHash + "/" + lang.Language[query.Language].CodeFile)
+			if err != nil {
+				c.String(http.StatusBadRequest, "Shoud /build before /run")
+				return
+			}
 
 			// Create container
 			// TODO: Limit container spec
