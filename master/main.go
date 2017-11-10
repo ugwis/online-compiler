@@ -58,23 +58,24 @@ func main() {
 	}
 	fmt.Printf("%#v\n", lang)
 
+	// Create docker client
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		log.Fatal("Docker client is not connected.")
 	}
 	options := types.ContainerListOptions{All: true}
 
+	// Pull using images
 	res, err := cli.ImagePull(ctx, "bash", types.ImagePullOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
 	io.Copy(os.Stdout, res)
 
+	// Start routing
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
+		c.String(http.StatusOK, "pong")
 	})
 	r.POST("/build", func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
@@ -253,7 +254,7 @@ func main() {
 			log.Print(err)
 			c.String(http.StatusInternalServerError, err.Error())
 		}
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"containers": containers,
 		})
 	})
