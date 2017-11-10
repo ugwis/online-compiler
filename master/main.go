@@ -94,11 +94,13 @@ func main() {
 			// Save code
 			fmt.Println("Save code")
 			if err := os.MkdirAll("/tmp/compiler/"+runningHash, 0755); err != nil {
+				c.String(http.StatusInternalServerError, err.Error())
 				fmt.Println(err.Error())
 				return
 			}
 			fp, err := os.OpenFile("/tmp/compiler/"+runningHash+"/"+lang.Language[query.Language].CodeFile, os.O_WRONLY|os.O_CREATE, 0644)
 			if err != nil {
+				c.String(http.StatusInternalServerError, err.Error())
 				fmt.Println(err.Error())
 				return
 			}
@@ -106,6 +108,7 @@ func main() {
 			writer := bufio.NewWriter(fp)
 			_, err = writer.WriteString(query.Code)
 			if err != nil {
+				c.String(http.StatusInternalServerError, err.Error())
 				fmt.Println(err.Error())
 				return
 			}
@@ -134,7 +137,7 @@ func main() {
 				AutoRemove: true,
 			}, nil, "")
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				c.String(http.StatusInternalServerError, err.Error())
 				fmt.Println(err.Error())
 				return
 			}
@@ -142,7 +145,7 @@ func main() {
 			// Start container
 			err = cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				c.String(http.StatusInternalServerError, err.Error())
 				fmt.Println(err.Error())
 				return
 			}
@@ -150,8 +153,8 @@ func main() {
 			// Flow log of Stdout
 			out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true, Follow: true})
 			if err != nil {
+				c.String(http.StatusInternalServerError, err.Error())
 				fmt.Println(err.Error())
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
 			}
 			rd := bufio.NewReader(out)
@@ -168,7 +171,7 @@ func main() {
 				return true
 			})
 		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.String(http.StatusBadRequest, err.Error())
 		}
 	})
 	r.POST("/run", func(c *gin.Context) {
@@ -207,7 +210,7 @@ func main() {
 				AutoRemove: true,
 			}, nil, "")
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				c.String(http.StatusInternalServerError, err.Error())
 				fmt.Println(err.Error())
 				return
 			}
@@ -215,8 +218,8 @@ func main() {
 			// Start container
 			err = cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				fmt.Println(err.Error())
+				c.String(http.StatusInternalServerError, err.Error())
 				return
 			}
 
@@ -224,7 +227,7 @@ func main() {
 			out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true, Follow: true})
 			if err != nil {
 				fmt.Println(err.Error())
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				c.String(http.StatusInternalServerError, err.Error())
 				return
 			}
 			rd := bufio.NewReader(out)
@@ -241,16 +244,14 @@ func main() {
 				return true
 			})
 		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.String(http.StatusBadRequest, err.Error())
 		}
 	})
 	r.GET("/node", func(c *gin.Context) {
 		containers, err := cli.ContainerList(ctx, options)
 		if err != nil {
 			log.Print(err)
-			c.JSON(500, gin.H{
-				"error": "Does not permit to fetch container list",
-			})
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		c.JSON(200, gin.H{
 			"containers": containers,
