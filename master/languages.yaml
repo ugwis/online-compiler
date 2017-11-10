@@ -1,0 +1,9 @@
+language:
+  bash:
+    name: "Bash"
+    docker_image: "library/bash" 
+    code_file: "main.sh"
+    build_cmd: 
+    run_cmd: 
+      - "bash"
+      - "main.sh"
