@@ -87,6 +87,7 @@ func main() {
 			writer.Flush()
 
 			// Create container
+			// TODO: Limit container spec
 			fmt.Println("Create container")
 			resp, err := cli.ContainerCreate(ctx, &container.Config{
 				Image:      "bash",
