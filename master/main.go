@@ -79,6 +79,11 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
+	r.GET("/language", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"languages": lang.Language,
+		})
+	})
 	r.POST("/build", func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		var query Build
@@ -191,8 +196,33 @@ func main() {
 			// Check exist of source code and builded image
 			_, err = os.Stat("/tmp/compiler/" + runningHash + "/" + lang.Language[query.Language].CodeFile)
 			if err != nil {
-				c.String(http.StatusBadRequest, "Shoud /build before /run")
-				return
+				// Check this language requires build command
+				if len(lang.Language[query.Language].BuildCmd) == 0 {
+					// Save code
+					fmt.Println("Save code")
+					if err := os.MkdirAll("/tmp/compiler/"+runningHash, 0755); err != nil {
+						c.String(http.StatusInternalServerError, err.Error())
+						fmt.Println(err.Error())
+						return
+					}
+					fp, err := os.OpenFile("/tmp/compiler/"+runningHash+"/"+lang.Language[query.Language].CodeFile, os.O_WRONLY|os.O_CREATE, 0644)
+					if err != nil {
+						c.String(http.StatusInternalServerError, err.Error())
+						fmt.Println(err.Error())
+						return
+					}
+					defer fp.Close()
+					writer := bufio.NewWriter(fp)
+					_, err = writer.WriteString(query.Code)
+					if err != nil {
+						c.String(http.StatusInternalServerError, err.Error())
+						fmt.Println(err.Error())
+						return
+					}
+					writer.Flush()
+				} else {
+					c.String(http.StatusBadRequest, "Shoud /build before /run")
+				}
 			}
 
 			// Create container
