@@ -66,11 +66,13 @@ func main() {
 	options := types.ContainerListOptions{All: true}
 
 	// Pull using images
-	res, err := cli.ImagePull(ctx, "bash", types.ImagePullOptions{})
-	if err != nil {
-		log.Fatal(err)
+	for _, v := range lang.Language {
+		res, err := cli.ImagePull(ctx, v.DockerImage, types.ImagePullOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		io.Copy(os.Stdout, res)
 	}
-	io.Copy(os.Stdout, res)
 
 	// Start routing
 	r := gin.Default()
