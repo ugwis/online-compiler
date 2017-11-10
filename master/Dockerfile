@@ -5,5 +5,6 @@ RUN go get ./...
 RUN go build --ldflags '-s -w -linkmode external -extldflags -static' -o /main
 
 FROM docker:dind
+ADD . ./
 COPY --from=0 /main /main
 CMD ["/main"]

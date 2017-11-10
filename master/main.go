@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +17,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/context"
+	"gopkg.in/yaml.v2"
 )
 
 type Build struct {
@@ -29,8 +31,32 @@ type Run struct {
 	Stdin    string `form:"stdin"`
 }
 
+type Language struct {
+	Name        string   `yaml:"name"`
+	DockerImage string   `yaml:"docker_image"`
+	BuildCmd    []string `yaml:"build_cmd"`
+	RunCmd      []string `yaml:"run_cmd"`
+	CodeFile    string   `yaml:"code_file"`
+}
+
+type Languages struct {
+	Language map[string]Language `yaml:"language"`
+}
+
 func main() {
 	ctx := context.Background()
+
+	// Read languges setttings
+	buf, err := ioutil.ReadFile("./languages.yaml")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	var lang Languages
+	err = yaml.Unmarshal(buf, &lang)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%#v\n", lang)
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
@@ -90,9 +116,9 @@ func main() {
 			// TODO: Limit container spec
 			fmt.Println("Create container")
 			resp, err := cli.ContainerCreate(ctx, &container.Config{
-				Image:      "bash",
+				Image:      lang.Language[query.Language].DockerImage,
 				WorkingDir: "/workspace",
-				Cmd:        []string{"bash", "main.sh"},
+				Cmd:        lang.Language[query.Language].RunCmd,
 			}, &container.HostConfig{
 				Mounts: []mount.Mount{
 					mount.Mount{
