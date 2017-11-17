@@ -183,6 +183,7 @@ func main() {
 		}
 	})
 	r.POST("/run", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
 		var query Run
 		if err := c.BindJSON(&query); err == nil {
 			// Make hash
