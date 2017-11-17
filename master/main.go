@@ -159,7 +159,7 @@ func main() {
 			}
 
 			// Flow log of Stdout
-			out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true, Follow: true})
+			out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true})
 			if err != nil {
 				c.String(http.StatusInternalServerError, err.Error())
 				fmt.Println(err.Error())
@@ -257,7 +257,7 @@ func main() {
 			}
 
 			// Flow log of Stdout
-			out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true, Follow: true})
+			out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true})
 			if err != nil {
 				fmt.Println(err.Error())
 				c.String(http.StatusInternalServerError, err.Error())
