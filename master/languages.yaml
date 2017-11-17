@@ -36,8 +36,11 @@ language:
     build_cmd:
       - "g++"
       - "-std=c++0x"
+      - "-o"
       - "main"
       - "main.cpp"
+    run_cmd:
+      - "./main"
   python:
     name: "Python"
     docker_image: "library/python"
