@@ -29,3 +29,12 @@ language:
       - "main.cpp"
     run_cmd:
       - "./main"
+  cpp11:
+    name: "C++11"
+    docker_image: "frolvlad/alpine-gxx"
+    code_file: "main.cpp"
+    build_cmd:
+      - "g++"
+      - "-std=c++0x"
+      - "main"
+      - "main.cpp"
