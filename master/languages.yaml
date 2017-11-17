@@ -38,3 +38,11 @@ language:
       - "-std=c++0x"
       - "main"
       - "main.cpp"
+  python:
+    name: "Python"
+    docker_image: "library/python"
+    code_file: "main.py"
+    build_cmd:
+    run_cmd:
+      - "python"
+      - "main.py"
