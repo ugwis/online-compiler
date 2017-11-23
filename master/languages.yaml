@@ -1,15 +1,17 @@
 language:
   bash:
     name: "Bash"
-    docker_image: "library/bash" 
+    docker_image: "ugwis/online-compiler:bash" 
     code_file: "main.sh"
     build_cmd: 
     run_cmd: 
+      - "timeout"
+      - "3"
       - "bash"
       - "main.sh"
   c:
     name: "C"
-    docker_image: "frolvlad/alpine-gcc"
+    docker_image: "ugwis/online-compiler:c"
     code_file: "main.c"
     build_cmd:
       - "g++"
@@ -17,10 +19,12 @@ language:
       - "main"
       - "main.c"
     run_cmd:
+      - "timeout"
+      - "3" 
       - "./main"
   cpp:
     name: "C++"
-    docker_image: "frolvlad/alpine-gxx"
+    docker_image: "ugwis/online-compiler:cpp"
     code_file: "main.cpp"
     build_cmd:
       - "g++"
@@ -28,10 +32,12 @@ language:
       - "main"
       - "main.cpp"
     run_cmd:
+      - "timeout"
+      - "3" 
       - "./main"
   cpp11:
     name: "C++11"
-    docker_image: "frolvlad/alpine-gxx"
+    docker_image: "ugwis/online-compiler:cpp"
     code_file: "main.cpp"
     build_cmd:
       - "g++"
@@ -40,6 +46,8 @@ language:
       - "main"
       - "main.cpp"
     run_cmd:
+      - "timeout"
+      - "3"
       - "./main"
   python:
     name: "Python"
@@ -47,6 +55,8 @@ language:
     code_file: "main.py"
     build_cmd:
     run_cmd:
+      - "timeout"
+      - "3"
       - "python"
       - "main.py"
   php:
@@ -55,5 +65,7 @@ language:
     code_file: "main.php"
     build_cmd:
     run_cmd:
+      - "timeout"
+      - "3"
       - "php"
       - "main.php"
