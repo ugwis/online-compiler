@@ -131,9 +131,10 @@ func main() {
 			// TODO: Limit container spec
 			fmt.Println("Create container")
 			resp, err := cli.ContainerCreate(ctx, &container.Config{
-				Image:      lang.Language[query.Language].DockerImage,
-				WorkingDir: "/workspace",
-				Cmd:        lang.Language[query.Language].BuildCmd,
+				Image:           lang.Language[query.Language].DockerImage,
+				WorkingDir:      "/workspace",
+				Cmd:             lang.Language[query.Language].BuildCmd,
+				NetworkDisabled: true,
 			}, &container.HostConfig{
 				Mounts: []mount.Mount{
 					mount.Mount{
@@ -229,10 +230,12 @@ func main() {
 			// Create container
 			// TODO: Limit container spec
 			fmt.Println("Create container")
+			fmt.Printf("%v\n", lang.Language[query.Language].RunCmd)
 			resp, err := cli.ContainerCreate(ctx, &container.Config{
-				Image:      lang.Language[query.Language].DockerImage,
-				WorkingDir: "/workspace",
-				Cmd:        lang.Language[query.Language].RunCmd,
+				Image:           lang.Language[query.Language].DockerImage,
+				WorkingDir:      "/workspace",
+				Cmd:             lang.Language[query.Language].RunCmd,
+				NetworkDisabled: true,
 			}, &container.HostConfig{
 				Mounts: []mount.Mount{
 					mount.Mount{
