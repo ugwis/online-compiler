@@ -236,6 +236,12 @@ func main() {
 				WorkingDir:      "/workspace",
 				Cmd:             lang.Language[query.Language].RunCmd,
 				NetworkDisabled: true,
+				AttachStdin:     true,
+				AttachStdout:    true,
+				AttachStderr:    true,
+				OpenStdin:       true,
+				StdinOnce:       true,
+				Tty:             false,
 			}, &container.HostConfig{
 				Mounts: []mount.Mount{
 					mount.Mount{
@@ -252,6 +258,29 @@ func main() {
 				return
 			}
 
+			// Attach container
+			stdin, err := cli.ContainerAttach(ctx, resp.ID, types.ContainerAttachOptions{
+				Stream: true,
+				Stdin:  true,
+			})
+			defer stdin.Close()
+			if err != nil {
+				fmt.Println(err.Error())
+				c.String(http.StatusInternalServerError, err.Error())
+				return
+			}
+
+			stdout, err := cli.ContainerAttach(ctx, resp.ID, types.ContainerAttachOptions{
+				Stream: true,
+				Stdout: true,
+			})
+			defer stdout.Close()
+			if err != nil {
+				fmt.Println(err.Error())
+				c.String(http.StatusInternalServerError, err.Error())
+				return
+			}
+
 			// Start container
 			err = cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
 			if err != nil {
@@ -260,14 +289,13 @@ func main() {
 				return
 			}
 
+			// Put to Stdin
+			fmt.Println(query.Stdin)
+			stdin.Conn.Write([]byte(query.Stdin))
+			//stdin.CloseWrite()
+
 			// Flow log of Stdout
-			out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true})
-			if err != nil {
-				fmt.Println(err.Error())
-				c.String(http.StatusInternalServerError, err.Error())
-				return
-			}
-			rd := bufio.NewReader(out)
+			rd := bufio.NewReader(stdout.Reader)
 			c.Stream(func(w io.Writer) bool {
 				line, _, err := rd.ReadLine()
 				w.Write(line)
