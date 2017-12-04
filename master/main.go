@@ -292,7 +292,7 @@ func main() {
 			// Put to Stdin
 			fmt.Println(query.Stdin)
 			stdin.Conn.Write([]byte(query.Stdin))
-			//stdin.CloseWrite()
+			stdin.CloseWrite()
 
 			// Flow log of Stdout
 			rd := bufio.NewReader(stdout.Reader)
