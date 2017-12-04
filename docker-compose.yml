@@ -5,6 +5,7 @@ services:
     privileged: true
     volumes:
       - data:/tmp
+      - image:/var/lib/docker
   api:
     build: master
     ports:
@@ -18,3 +19,4 @@ services:
 
 volumes:
   data:
+  image:
