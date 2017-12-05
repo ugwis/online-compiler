@@ -90,6 +90,11 @@ func main() {
 		/*runCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()*/
 		if err := c.BindJSON(&query); err == nil {
+			if _, ok := lang.Language[query.Language]; !ok {
+				fmt.Println("Unsupported language: " + query.Language)
+				c.String(http.StatusBadRequest, "Unsupported language: "+query.Language)
+				return
+			}
 
 			// Make hash
 			fmt.Println("Make hash")
