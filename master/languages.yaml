@@ -14,7 +14,7 @@ language:
     docker_image: "ugwis/online-compiler:c"
     code_file: "main.c"
     build_cmd:
-      - "g++"
+      - "gcc"
       - "-o"
       - "main"
       - "main.c"
