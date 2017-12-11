@@ -128,7 +128,8 @@ func main() {
 			writer.Flush()
 
 			if len(lang.Language[query.Language].BuildCmd) == 0 {
-				c.String(http.StatusCreated, "This language hasn't build command and saved")
+				//c.String(http.StatusCreated, "This language hasn't build command and saved")
+				c.String(http.StatusCreated, "")
 				return
 			}
 
