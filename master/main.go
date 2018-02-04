@@ -8,8 +8,10 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -66,12 +68,17 @@ func main() {
 	options := types.ContainerListOptions{All: true}
 
 	// Pull using images
-	for _, v := range lang.Language {
-		res, err := cli.ImagePull(ctx, v.DockerImage, types.ImagePullOptions{})
-		if err != nil {
-			log.Fatal(err)
+	timeout := time.Duration(1 * time.Second)
+	if _, err := net.DialTimeout("tcp", "hub.docker.com:80", timeout); err != nil {
+		log.Println("Site unreachable, error: ", err)
+	} else {
+		for _, v := range lang.Language {
+			res, err := cli.ImagePull(ctx, v.DockerImage, types.ImagePullOptions{})
+			if err != nil {
+				log.Fatal(err)
+			}
+			io.Copy(os.Stdout, res)
 		}
-		io.Copy(os.Stdout, res)
 	}
 
 	// Start routing
