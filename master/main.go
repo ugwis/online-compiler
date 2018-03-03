@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -61,10 +62,18 @@ func main() {
 	// Create docker client
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		log.Fatal("Docker client is not connected.")
+		log.Fatal("Cannot create docker client")
 	}
 	options := types.ContainerListOptions{All: true}
 
+	for {
+		ver, err := cli.ServerVersion(ctx)
+		if err == nil {
+			fmt.Println(ver.Version)
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
 	// Pull using images
 	for _, v := range lang.Language {
 		res, err := cli.ImagePull(ctx, v.DockerImage, types.ImagePullOptions{})
