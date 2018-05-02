@@ -92,9 +92,11 @@ func main() {
 	// Start routing
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
 		c.String(http.StatusOK, "pong")
 	})
 	r.GET("/language", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
 		c.JSON(http.StatusOK, gin.H{
 			"languages": lang.Language,
 		})
