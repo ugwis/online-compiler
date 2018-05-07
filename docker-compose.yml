@@ -3,11 +3,13 @@ services:
   docker:
     image: docker:dind
     privileged: true
+    restart: always
     volumes:
       - data:/tmp
       - image:/var/lib/docker
   api:
     build: master
+    restart: always
     ports:
       - 3000:8080
     links:
