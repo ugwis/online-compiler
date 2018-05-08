@@ -87,6 +87,16 @@ language:
       - "3"
       - "python"
       - "main.py"
+  python2:
+    name: "Python2"
+    docker_image: "library/python:2-jessie"
+    code_file: "main.py"
+    build_cmd: 
+    run_cmd:
+      - "timeout"
+      - "3"
+      - "python"
+      - "main.py"
   php:
     name: "PHP"
     docker_image: "library/php"
