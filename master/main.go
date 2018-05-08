@@ -192,7 +192,11 @@ func main() {
 			rd := bufio.NewReader(out)
 			c.Stream(func(w io.Writer) bool {
 				line, _, err := rd.ReadLine()
-				w.Write(line)
+				if len(line) >= 8 {
+					w.Write(line[8:])
+				} else {
+					w.Write(line)
+				}
 				w.Write([]byte("\n"))
 				if err == io.EOF {
 					return false
