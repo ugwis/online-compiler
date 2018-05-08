@@ -49,6 +49,34 @@ language:
       - "timeout"
       - "3"
       - "./main"
+  cpp14:
+    name: "C++14"
+    docker_image: "ugwis/online-compiler:cpp"
+    code_file: "main.cpp"
+    build_cmd:
+      - "g++"
+      - "-std=gnu++14"
+      - "-o"
+      - "main"
+      - "main.cpp"
+    run_cmd:
+      - "timeout"
+      - "3"
+      - "./main"
+  cpp17:
+    name: "C++17"
+    docker_image: "ugwis/online-compiler:cpp"
+    code_file: "main.cpp"
+    build_cmd:
+      - "g++"
+      - "-std=c++1z"
+      - "-o"
+      - "main"
+      - "main.cpp"
+    run_cmd:
+      - "timeout"
+      - "3"
+      - "./main"
   python:
     name: "Python"
     docker_image: "library/python"
