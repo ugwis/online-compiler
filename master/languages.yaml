@@ -97,3 +97,14 @@ language:
       - "3"
       - "php"
       - "main.php"
+  rust:
+    name: "Rust"
+    docker_image: "library/rust"
+    code_file: "main.rs"
+    build_cmd:
+      - "rustc"
+      - "main.rs"
+    run_cmd:
+      - "timeout"
+      - "3"
+      - "./main"
