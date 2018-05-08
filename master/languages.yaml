@@ -118,3 +118,15 @@ language:
       - "timeout"
       - "3"
       - "./main"
+  golang:
+    name: "Golang"
+    docker_image: "library/golang"
+    code_file: "main.go"
+    build_cmd:
+      - "go"
+      - "build"
+      - "main.go"
+    run_cmd:
+      - "timeout"
+      - "3"
+      - "./main"
