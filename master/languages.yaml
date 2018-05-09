@@ -130,3 +130,13 @@ language:
       - "timeout"
       - "3"
       - "./main"
+  node:
+    name: "JavaScript(Node.js)"
+    docker_image: "library/node"
+    code_file: "main.js"
+    build_cmd:
+    run_cmd:
+      - "timeout"
+      - "3"
+      - "node"
+      - "main.js"
