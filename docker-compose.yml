@@ -6,6 +6,7 @@ services:
     restart: always
     volumes:
       - data:/tmp
+      - /tmp/docker/containers:/var/lib/docker/containers
       - image:/var/lib/docker
     logging:
       options:
