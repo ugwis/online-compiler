@@ -279,6 +279,8 @@ func main() {
 					},
 				},
 				Resources: container.Resources{
+					Memory:    512 * 1024 * 1024,
+					PidsLimit: 10,
 					Ulimits: []*units.Ulimit{
 						{
 							Name: "nproc",
