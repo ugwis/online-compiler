@@ -17,6 +17,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
+	"github.com/docker/go-units"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/context"
 	"gopkg.in/yaml.v2"
@@ -275,6 +276,20 @@ func main() {
 						Type:   mount.TypeBind,
 						Source: "/tmp/compiler/" + runningHash,
 						Target: "/workspace",
+					},
+				},
+				Resources: container.Resources{
+					Ulimits: []*units.Ulimit{
+						{
+							Name: "nproc",
+							Hard: 10,
+							Soft: 10,
+						},
+						{
+							Name: "fsize",
+							Hard: 1000000,
+							Soft: 1000000,
+						},
 					},
 				},
 				AutoRemove: true,
