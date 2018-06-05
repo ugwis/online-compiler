@@ -176,6 +176,7 @@ func main() {
 			}
 
 			// Start container
+			fmt.Println("Start container")
 			err = cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
 			if err != nil {
 				c.String(http.StatusInternalServerError, err.Error())
@@ -326,6 +327,7 @@ func main() {
 			}
 
 			// Start container
+			fmt.Println("Start container")
 			err = cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
 			if err != nil {
 				fmt.Println(err.Error())
