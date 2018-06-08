@@ -303,6 +303,11 @@ func main() {
 							Hard: 1000000,
 							Soft: 1000000,
 						},
+						{
+							Name: "core",
+							Hard: -1,
+							Soft: -1,
+						},
 					},
 				},
 				AutoRemove: true,
