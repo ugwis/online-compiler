@@ -102,6 +102,16 @@ func main() {
 			"languages": lang.Language,
 		})
 	})
+	r.GET("/node", func(c *gin.Context) {
+		containers, err := cli.ContainerList(ctx, options)
+		if err != nil {
+			log.Print(err)
+			c.String(http.StatusInternalServerError, err.Error())
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"containers": containers,
+		})
+	})
 	r.POST("/build", func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		var query Build
@@ -357,16 +367,6 @@ func main() {
 		} else {
 			c.String(http.StatusBadRequest, err.Error())
 		}
-	})
-	r.GET("/node", func(c *gin.Context) {
-		containers, err := cli.ContainerList(ctx, options)
-		if err != nil {
-			log.Print(err)
-			c.String(http.StatusInternalServerError, err.Error())
-		}
-		c.JSON(http.StatusOK, gin.H{
-			"containers": containers,
-		})
 	})
 	r.Run()
 }
