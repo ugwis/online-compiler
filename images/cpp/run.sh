@@ -1,9 +1,8 @@
 #!/bin/bash
 mkfifo gpp
-g++ -std=c++1z -ggdb -o ./main ./main.c > gpp
-status_code=$?
-(cat < gpp) | awk '{print "g++:"$0 > "/dev/stdout";fflush()'&
-if [ ${status_code} -ne 0 ];then
+g++ -std=c++1z -ggdb -o ./main ./main.c | awk '{print "g++:"$0 > "/dev/stdout";fflush()'
+status_code=${PIPESTATUS[0]}
+(cat < gpp) | if [ ${status_code} -ne 0 ];then
 	echo "Exit Code: ${status_code}"
 	exit 0
 fi

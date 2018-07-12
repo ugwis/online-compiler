@@ -1,8 +1,7 @@
 #!/bin/bash
 mkfifo gcc
-gcc -ggdb -o ./main ./main.c > gcc
-status_code=$?
-(cat < gcc) | awk '{print "gcc:"$0 > "/dev/stdout";fflush()'&
+gcc -ggdb -o ./main ./main.c | awk '{print "gcc:"$0 > "/dev/stdout";fflush()'
+status_code=${PIPESTATUS[0]}
 if [ ${status_code} -ne 0 ];then
 	echo "Exit Code: ${status_code}"
 	exit 0
