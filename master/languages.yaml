@@ -14,68 +14,40 @@ language:
     docker_image: "ugwis/online-compiler:c"
     code_file: "main.c"
     build_cmd:
-      - "gcc"
-      - "-ggdb"
-      - "-o"
-      - "main"
-      - "main.c"
     run_cmd:
-      - "sh"
+      - "bash"
       - "/run.sh"
   cpp:
     name: "C++"
     docker_image: "ugwis/online-compiler:cpp"
     code_file: "main.cpp"
     build_cmd:
-      - "g++"
-      - "-ggdb"
-      - "-o"
-      - "main"
-      - "main.cpp"
     run_cmd:
-      - "sh"
+      - "bash"
       - "/run.sh"
   cpp11:
     name: "C++11"
     docker_image: "ugwis/online-compiler:cpp"
     code_file: "main.cpp"
     build_cmd:
-      - "g++"
-      - "-ggdb"
-      - "-std=c++0x"
-      - "-o"
-      - "main"
-      - "main.cpp"
     run_cmd:
-      - "sh"
+      - "bash"
       - "/run.sh"
   cpp14:
     name: "C++14"
     docker_image: "ugwis/online-compiler:cpp"
     code_file: "main.cpp"
     build_cmd:
-      - "g++"
-      - "-ggdb"
-      - "-std=gnu++14"
-      - "-o"
-      - "main"
-      - "main.cpp"
     run_cmd:
-      - "sh"
+      - "bash"
       - "/run.sh"
   cpp17:
     name: "C++17"
     docker_image: "ugwis/online-compiler:cpp"
     code_file: "main.cpp"
     build_cmd:
-      - "g++"
-      - "-ggdb"
-      - "-std=c++1z"
-      - "-o"
-      - "main"
-      - "main.cpp"
     run_cmd:
-      - "sh"
+      - "bash"
       - "/run.sh"
   python:
     name: "Python"
