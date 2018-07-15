@@ -1,6 +1,5 @@
 #!/bin/bash
-mkfifo gcc
-gcc -ggdb -o ./main ./main.c | awk '{print "gcc:"$0 > "/dev/stdout";fflush()'
+gcc -ggdb -o ./main ./main.c | awk '{print "gcc:"$0;fflush()'
 status_code=${PIPESTATUS[0]}
 if [ ${status_code} -ne 0 ];then
 	echo "Exit Code: ${status_code}"
@@ -21,3 +20,4 @@ if [ ${status_code} -ne 0 ];then
 	fi
 	exit 0
 fi
+exit 0
