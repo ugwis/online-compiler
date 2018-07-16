@@ -1,5 +1,5 @@
 #!/bin/bash
-gcc -ggdb -o ./main ./main.c | awk '{print "gcc:"$0;fflush()'
+gcc -ggdb -o ./main ./main.c 2>&1 |  awk '{print "gcc:"$0 > "/dev/stdout";fflush()}'
 status_code=${PIPESTATUS[0]}
 if [ ${status_code} -ne 0 ];then
 	echo "Exit Code: ${status_code}"

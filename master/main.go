@@ -280,7 +280,7 @@ func main() {
 				AttachStderr:    true,
 				OpenStdin:       true,
 				StdinOnce:       true,
-				Tty:             false,
+				Tty:             true,
 			}, &container.HostConfig{
 				Mounts: []mount.Mount{
 					mount.Mount{

@@ -1,5 +1,5 @@
 #!/bin/bash
-g++ -std=c++1z -ggdb -o ./main ./main.cpp | awk '{print "g++:"$0;fflush()'
+g++ -std=c++1z -ggdb -o ./main ./main.cpp 2>&1 |  awk '{print "g++:"$0 > "/dev/stdout";fflush()}'
 status_code=${PIPESTATUS[0]}
 if [ ${status_code} -ne 0 ];then
 	echo "Exit Code: ${status_code}"
